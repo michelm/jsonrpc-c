@@ -74,12 +74,17 @@ extern char  *cJSON_PrintUnformatted(cJSON *item);
 /* Delete a cJSON entity and all subentities. */
 extern void   cJSON_Delete(cJSON *c);
 
+extern cJSON *cJSON_Dup(cJSON *c);
+
 /* Returns the number of items in an array (or object). */
 extern int	  cJSON_GetArraySize(cJSON *array);
 /* Retrieve item number "item" from array "array". Returns NULL if unsuccessful. */
 extern cJSON *cJSON_GetArrayItem(cJSON *array,int item);
 /* Get item "string" from object. Case insensitive. */
 extern cJSON *cJSON_GetObjectItem(cJSON *object,const char *string);
+
+/* For analysing failed parses. This returns a pointer to the parse error. You'll probably need to look a few chars back to make sense of it. Defined when cJSON_Parse() returns 0. 0 when cJSON_Parse() succeeds. */
+extern const char *cJSON_GetErrorPtr();
 
 /* These calls create a cJSON item of the appropriate type. */
 extern cJSON *cJSON_CreateNull();

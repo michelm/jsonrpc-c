@@ -1,7 +1,9 @@
+AC_PREREQ([2.60])
 AC_INIT([jsonrpc-c], [0.1], [hmng@farol.pt])
 AC_CONFIG_SRCDIR([src/jsonrpc-c.c])
+AC_CONFIG_AUX_DIR([.])
+AC_CONFIG_MACRO_DIR([m4])
 
-m4_pattern_allow([AM_PROG_AR])
 AM_PROG_AR
 LT_INIT
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
