@@ -18,7 +18,7 @@
   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
   THE SOFTWARE.
-*/
+ */
 
 /* cJSON */
 /* JSON parser in C. */
@@ -49,22 +49,22 @@ static void (*cJSON_free)(void *ptr) = free;
 
 static char* cJSON_strdup(const char* str)
 {
-      size_t len;
-      char* copy;
+	size_t len;
+	char* copy;
 
-      len = strlen(str) + 1;
-      if (!(copy = (char*)cJSON_malloc(len))) return 0;
-      memcpy(copy,str,len);
-      return copy;
+	len = strlen(str) + 1;
+	if (!(copy = (char*)cJSON_malloc(len))) return 0;
+	memcpy(copy,str,len);
+	return copy;
 }
 
 void cJSON_InitHooks(cJSON_Hooks* hooks)
 {
-    if (!hooks) { /* Reset hooks */
-        cJSON_malloc = malloc;
-        cJSON_free = free;
-        return;
-    }
+	if (!hooks) { /* Reset hooks */
+		cJSON_malloc = malloc;
+		cJSON_free = free;
+		return;
+	}
 
 	cJSON_malloc = (hooks->malloc_fn)?hooks->malloc_fn:malloc;
 	cJSON_free	 = (hooks->free_fn)?hooks->free_fn:free;
@@ -364,8 +364,8 @@ static const char *parse_array(cJSON *item,const char *value)
 
 	while (*value==',')
 	{
-	    const char *nextch = skip(value+1);
-	    if (nextch!=0 && *nextch==']') {value=nextch;break;}
+		const char *nextch = skip(value+1);
+		if (nextch!=0 && *nextch==']') {value=nextch;break;}
 		cJSON *new_item;
 		if (!(new_item=cJSON_New_Item())) return 0; 	/* memory fail */
 		child->next=new_item;new_item->prev=child;child=new_item;
@@ -449,8 +449,8 @@ static const char *parse_object(cJSON *item,const char *value)
 
 	while (*value==',')
 	{
-	    const char *nextch = skip(value+1);
-	    if (nextch!=0 && *nextch=='}') {value=nextch;break;}
+		const char *nextch = skip(value+1);
+		if (nextch!=0 && *nextch=='}') {value=nextch;break;}
 		cJSON *new_item;
 		if (!(new_item=cJSON_New_Item()))	return 0; /* memory fail */
 		child->next=new_item;new_item->prev=child;child=new_item;
@@ -541,15 +541,15 @@ void	cJSON_AddItemReferenceToArray(cJSON *array, cJSON *item)						{cJSON_AddIte
 void	cJSON_AddItemReferenceToObject(cJSON *object,const char *string,cJSON *item)	{cJSON_AddItemToObject(object,string,create_reference(item));}
 
 cJSON *cJSON_DetachItemFromArray(cJSON *array,int which)			{cJSON *c=array->child;while (c && which>0) c=c->next,which--;if (!c) return 0;
-	if (c->prev) c->prev->next=c->next;if (c->next) c->next->prev=c->prev;if (c==array->child) array->child=c->next;c->prev=c->next=0;return c;}
+if (c->prev) c->prev->next=c->next;if (c->next) c->next->prev=c->prev;if (c==array->child) array->child=c->next;c->prev=c->next=0;return c;}
 void   cJSON_DeleteItemFromArray(cJSON *array,int which)			{cJSON_Delete(cJSON_DetachItemFromArray(array,which));}
 cJSON *cJSON_DetachItemFromObject(cJSON *object,const char *string) {int i=0;cJSON *c=object->child;while (c && cJSON_strcasecmp(c->string,string)) i++,c=c->next;if (c) return cJSON_DetachItemFromArray(object,i);return 0;}
 void   cJSON_DeleteItemFromObject(cJSON *object,const char *string) {cJSON_Delete(cJSON_DetachItemFromObject(object,string));}
 
 /* Replace array/object items with new ones. */
 void   cJSON_ReplaceItemInArray(cJSON *array,int which,cJSON *newitem)		{cJSON *c=array->child;while (c && which>0) c=c->next,which--;if (!c) return;
-	newitem->next=c->next;newitem->prev=c->prev;if (newitem->next) newitem->next->prev=newitem;
-	if (c==array->child) array->child=newitem; else newitem->prev->next=newitem;c->next=c->prev=0;cJSON_Delete(c);}
+newitem->next=c->next;newitem->prev=c->prev;if (newitem->next) newitem->next->prev=newitem;
+if (c==array->child) array->child=newitem; else newitem->prev->next=newitem;c->next=c->prev=0;cJSON_Delete(c);}
 void   cJSON_ReplaceItemInObject(cJSON *object,const char *string,cJSON *newitem){int i=0;cJSON *c=object->child;while(c && cJSON_strcasecmp(c->string,string))i++,c=c->next;if(c){newitem->string=cJSON_strdup(string);cJSON_ReplaceItemInArray(object,i,newitem);}}
 
 /* Create basic types: */
