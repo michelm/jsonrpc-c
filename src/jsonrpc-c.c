@@ -62,7 +62,9 @@ static int send_response(struct jrpc_connection * conn, char *response) {
 	int fd = conn->fd;
 	if (conn->server->debug_level > 1)
 		printf("JSON Response (%s):\n%s\n", conn->url, response);
-	result = send(fd, response, strlen(response), MSG_DONTWAIT);
+	do {
+		result = send(fd, response, strlen(response), MSG_DONTWAIT);
+	} while (result >= 0 && *(response += result) != 0); 
 	if (result >= 0)
 		result = send(fd, "\n", 1, MSG_DONTWAIT);
 	return result;
@@ -343,6 +345,7 @@ static void connection_cb(struct ev_loop *loop, ev_io *w, int revents) {
 		conn->pos += bytes_read;
 
 		while (mustParse) {
+			conn->buffer[conn->pos] = 0;	// make sure it is null terminated
 			if ((root = cJSON_Parse_Stream(conn->buffer, &end_ptr)) != NULL) {
 				if (server->debug_level > 1) {
 					char * str_result = cJSON_Print(root);
@@ -356,10 +359,13 @@ static void connection_cb(struct ev_loop *loop, ev_io *w, int revents) {
 				}
 				cJSON_Delete(root);
 				//shift after processed request
-				memmove(conn->buffer, end_ptr, strlen(end_ptr)+1);
-
-				conn->pos = strlen(end_ptr);
-				if (strlen(end_ptr) <= 0){
+				int tailsize = conn->buffer + conn->pos - end_ptr;
+				if (tailsize > 0) {
+					memmove(conn->buffer, end_ptr, tailsize);
+					conn->pos = tailsize;
+				} else {
+					conn->pos = 0;
+					memset(conn->buffer, 0, conn->buffer_size);
 					mustParse = 0;
 				}
 
@@ -374,17 +380,16 @@ static void connection_cb(struct ev_loop *loop, ev_io *w, int revents) {
 					if (server->debug_level) {
 						printf("INVALID JSON Received (%s):\n---\n%s\n---\n", conn->url, conn->buffer);
 					}
+					char report[256];
+					sprintf(report, "Parse error. Invalid JSON was received by the server at %.30s at %d of %d", cJSON_GetErrorPtr(), cJSON_GetErrorPtr() - conn->buffer, conn->pos);
 					send_error(conn, JRPC_PARSE_ERROR,
-							strdup(
-									"Parse error. Invalid JSON was received by the server."),
+							strdup(report),
 									NULL);
 					return close_connection(loop, w);
 				}
 				mustParse = 0;
 			}
 		}
-		conn->pos = 0;
-		memset(conn->buffer, 0, conn->buffer_size);
 
 	}
 
